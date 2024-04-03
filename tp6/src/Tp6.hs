@@ -1,34 +1,37 @@
 module Tp6 where
 
 data MTree a = MTree {rootLabel :: a, subForest :: MForest a}
-    deriving (Eq, Ord)
+  deriving (Eq, Ord)
 
 type MForest a = [MTree a]
 
 mTreeIndent = 4
+
 mTreeBranchChar = '.'
+
 mTreeNodeChar = '+'
 
 instance (Show a) => Show (MTree a) where
-
-    show = go 0
+  show = go 0
+    where
+      go nTabs MTree {rootLabel = rl, subForest = mts} =
+        replicate nTabs mTreeBranchChar
+          ++ (if nTabs > 0 then " " else "")
+          ++ mTreeNodeChar :
+        " root label="
+          ++ show rl
+          ++ "\n"
+          ++ foldr f "" mts
         where
-        go nTabs MTree {rootLabel = rl, subForest = mts} =
-            replicate nTabs mTreeBranchChar ++
-            (if nTabs > 0 then " " else "") ++
-            mTreeNodeChar:" root label=" ++
-            show rl ++
-            "\n" ++
-            foldr f "" mts
-            where
-            f mt acc = go (nTabs + mTreeIndent) mt ++ acc
+          f mt acc = go (nTabs + mTreeIndent) mt ++ acc
 
 mTreeMk rl mts = MTree {rootLabel = rl, subForest = mts}
+
 mTreeMkLeaf rl = mTreeMk rl []
 
 mTreeExample :: MTree Integer
 mTreeExample = root
-    where
+  where
     root = mt_01_01_6
     -- writing convention : mt_level_left-to-right-index_value
     -- level 01
@@ -43,8 +46,15 @@ mTreeExample = root
     mt_03_03_3 = mTreeMk 3 [mt_04_06_1]
     mt_03_04_7 = mTreeMk 7 [mt_04_07_8]
     mt_03_05_9 = mTreeMkLeaf 9
-    mt_03_06_2 = mTreeMk 2 [mt_04_08_1, mt_04_09_2, mt_04_10_9,
-                            mt_04_11_7, mt_04_12_3]
+    mt_03_06_2 =
+      mTreeMk
+        2
+        [ mt_04_08_1,
+          mt_04_09_2,
+          mt_04_10_9,
+          mt_04_11_7,
+          mt_04_12_3
+        ]
     -- level 04
     mt_04_01_1 = mTreeMkLeaf 1
     mt_04_02_7 = mTreeMkLeaf 7
@@ -59,16 +69,30 @@ mTreeExample = root
     mt_04_11_7 = mTreeMkLeaf 7
     mt_04_12_3 = mTreeMkLeaf 3
 
-
 -- Exercice 1
+mTreeCount :: Num b => MTree a -> b
+mTreeCount (MTree _ subForest) = 1 + sum (map mTreeCount subForest)
 
-mTreeCount = undefined
+mTreeIsLeaf :: MTree a -> Bool
+mTreeIsLeaf (MTree _ []) = True
+mTreeIsLeaf _ = False
 
-mTreeIsLeaf = undefined
+mTreeIsLeaf' :: MTree a -> Bool
+mTreeIsLeaf' MTree {subForest = []} = True
+mTreeIsLeaf' _ = False
 
-mTreeLeaves = undefined
+mTreeLeaves :: MTree a -> [a]
+mTreeLeaves (MTree rl []) = [rl]
+mTreeLeaves (MTree _ subForest) = concatMap mTreeLeaves subForest
 
-mTreeCountLeaves = undefined
+-- mTreeLeaves' :: MTree a -> [a]
+-- mTreeLeaves' t@MTree {rootLabel = rl, subForest = mts}
+-- mTreeLeaves' t = [rl]
+-- mTreeLeaves' _ subForest=  concatMap mTreeLeaves' mts
+
+mTreeCountLeaves :: Num b => MTree a -> b
+mTreeCountLeaves (MTree _ []) = 1
+mTreeCountLeaves (MTree _ subForest) = sum (map mTreeCountLeaves subForest)
 
 mTreeSum = undefined
 
@@ -82,7 +106,6 @@ mTreeMax = undefined
 
 mTreeToList = undefined
 
-
 -- Exercice 2
 
 mTreeDepthFirstTraversal = undefined
@@ -93,7 +116,6 @@ mForestBreadthFirstTraversal = undefined
 
 mTreeLayer = undefined
 
-
 -- Exercice 3
 
 mTreeMap = undefined
@@ -102,14 +124,15 @@ mTreeFilter = undefined
 
 mTreeFold1 f z (MTree rl []) = [f rl z]
 mTreeFold1 f z (MTree rl mts) =
-    [f rl y | mt' <- mts, y <- mTreeFold1 f z mt']
+  [f rl y | mt' <- mts, y <- mTreeFold1 f z mt']
 
 mTreeCollectPaths = undefined
 
 mTreeSignature = undefined
 
 mTreeFold2 f (MTree rl mts) = f rl xs
-    where xs = map (mTreeFold2 f) mts
+  where
+    xs = map (mTreeFold2 f) mts
 
 mTreeMin' :: Ord a => MTree a -> a
 mTreeMin' = undefined
@@ -122,7 +145,6 @@ mTreeSum' = undefined
 
 mTreeToList' = undefined
 
-
 -- Exercice 4 - Générations
 
 subsets = undefined
@@ -130,7 +152,6 @@ subsets = undefined
 permutedSubsets = undefined
 
 mTrees = undefined
-
 
 -- Exercice 5 - Compléments
 
